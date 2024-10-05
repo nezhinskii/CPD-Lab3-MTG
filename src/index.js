@@ -1,28 +1,21 @@
-import {Mtg} from "./api/mtg";
+import { MtgService} from "./api/mtg";
+import {CardsWidget} from "./widgets/cards";
 import {ColorStats} from "./widgets/colorStats";
 import {ManaCostStats} from "./widgets/manaCostStats";
 
 document.addEventListener("DOMContentLoaded", setup)
 
 function setup() {
-    const mtg = new Mtg();
-    mtg.loadCards()
-        .then((cards) => {
-            const menu = document.getElementById('listContainer');
-            const list = document.createElement('ul');
-
-            cards.forEach(card => {
-                const listItem = document.createElement('li');
-                listItem.innerHTML = card.name;
-                list.appendChild(listItem)
-            })
-            menu.innerHTML = ''
-
-            menu.appendChild(list);
-
-
-            new ColorStats().buildStats(document.getElementById("colorStats"));
-            new ManaCostStats().buildStats(document.getElementById("manaStats"));
-
-        })
+    const mtgService = new MtgService();
+    new CardsWidget({
+        mtgService: mtgService, 
+        menu: document.getElementById('menu'), 
+        listContainer: document.getElementById('listContainer'), 
+        searchField: document.getElementById('searchCards'),
+        onCardTap: (card) => {
+            console.log(card);
+        }
+    }).init();
+    // new ColorStats().buildStats(document.getElementById("colorStats"));
+    // new ManaCostStats().buildStats(document.getElementById("manaStats"));
 }
