@@ -1,62 +1,38 @@
 import {MtgService} from "./api/mtg";
 import {CardsWidget} from "./widgets/cards";
-import {ColorStats} from "./widgets/colorStats";
-import {ManaCostStats} from "./widgets/manaCostStats";
+import {ColorStatsWidget} from "./widgets/colorStats";
+import {ManaCostStatsWidget} from "./widgets/manaCostStats";
 import {CardDetailsWidget} from "./widgets/cradDetails";
-import { DeckWidget} from "./widgets/deck";
+import {DeckWidget} from "./widgets/deck";
+import {DeckController} from "./controllers/deck";
 
 document.addEventListener("DOMContentLoaded", setup)
 
-const deck = new Map();
-
-const maxRegularCards = 4;
-const maxUniqueCards = 1;
-function addCardToDeck(card, updateCallback) {
-    const cardName = card.name;
-    const isUnique = 'supertypes' in card && card.supertypes.includes('Legendary');
-    if (!deck[cardName]) {
-        deck[cardName] = [];
-    }
-
-    if (card.type.startsWith('Basic Land')){
-        deck[cardName].push(card);
-        updateCallback();
-        return;
-    }
-
-    if (isUnique && deck[cardName].length == maxUniqueCards || !isUnique && deck[cardName].length == maxRegularCards){
-        alert('There is already a maximum number of cards of this type in the deck');
-    } else {
-        deck[cardName].push(card);
-        updateCallback();
-    }
-}
-
-function removeCardFromDeck(name, updateCallback) {
-    if (!deck[name]){
-        return;
-    }
-    const cards = deck[name];
-    if (cards.length == 1){
-        delete deck[name];
-    } else {
-        cards.pop();
-    }
-    updateCallback();
-}
-
 function setup() {
+    const deck = new DeckController(() => {
+        deckWidget.build(deck);
+        manaCostStatsWidget.build(deck);
+        colorStatsWidget.build(deck);
+    });
+
     const mtgService = new MtgService();
+
+    const colorStatsWidget = new ColorStatsWidget(document.getElementById("colorStats"));
+    const manaCostStatsWidget = new ManaCostStatsWidget(document.getElementById("manaStats"));
     const deckWidget = new DeckWidget({
         element: document.getElementById('deckContainer'),
         removeCallback: (name) => {
-            removeCardFromDeck(name, () => {deckWidget.build(deck);});
+            deck.removeCard(name);
         }
     });
     const cardDetailsWidget = new CardDetailsWidget({
         element: document.getElementById('cardDetails'),
         addCard: (card) => {
-            addCardToDeck(card, () => {deckWidget.build(deck);});
+            try{
+                deck.addCard(card);
+            } catch (error){
+                alert(error);
+            }
         }
     });
     const cardsWidget = new CardsWidget({
@@ -67,9 +43,4 @@ function setup() {
         }
     });
     cardsWidget.init();
-    
-    
-
-    new ColorStats().buildStats(document.getElementById("colorStats"));
-    new ManaCostStats().buildStats(document.getElementById("manaStats"));
 }

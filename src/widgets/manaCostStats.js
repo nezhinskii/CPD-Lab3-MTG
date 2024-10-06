@@ -1,18 +1,41 @@
 import * as d3 from "d3";
-class ManaCostStats {
-    constructor() {
+class ManaCostStatsWidget {
+    constructor(element) {
+        this.element = element;
     }
-    buildStats(element){
-        const data = [
-            { cost: 0, count: 2 },
-            { cost: 1, count: 8 },
-            { cost: 2, count: 12 },
-            { cost: 3, count: 15 },
-            { cost: 4, count: 10 },
-            { cost: 5, count: 6 },
-            { cost: 6, count: 4 },
-            { cost: '7+', count: 3 }
-        ];
+
+    #dataFromDeck(deck){
+        const map = {};
+        for (const [_, cards] of deck){
+            for (const card of cards){
+                if (!Number.isInteger(card.cmc)){
+                    continue;
+                }
+                if (card.cmc < 7){
+                    if (!map[card.cmc]){
+                        map[card.cmc] = 1;
+                    } else {
+                        map[card.cmc]++;
+                    }
+                } else {
+                    if (!map['7+']){
+                        map['7+'] = 1;
+                    } else {
+                        map['7+']++;
+                    }
+                }
+            }
+        }
+        const data = [];
+        for (const key in map){
+            data.push({cost: key, count: map[key]});
+        }
+        return data;
+    }
+
+    build(deck){
+        this.element.innerHTML = '';
+        const data = this.#dataFromDeck(deck);
 
         const margin = { top: 30, right: 30, bottom: 70, left: 60 };
         const width = 460 - margin.left - margin.right;
@@ -21,7 +44,7 @@ class ManaCostStats {
 
 
 
-        const svg = d3.select(element)
+        const svg = d3.select(this.element)
             .append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
@@ -77,4 +100,4 @@ class ManaCostStats {
             .text("Mana Cost");
     }
 }
-export {ManaCostStats};
+export {ManaCostStatsWidget};

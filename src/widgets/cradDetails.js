@@ -14,7 +14,6 @@ class CardDetailsWidget{
         const cardImage = document.createElement('img');
         cardImage.src = card.imageUrl;
         cardImage.alt = card.name;
-        cardImage.style.width = '300px';
 
         const cardName = document.createElement('h3');
         cardName.textContent = card.name;

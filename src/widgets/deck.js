@@ -7,8 +7,7 @@ class DeckWidget {
     build(deck) {
         this.element.innerHTML = '';
 
-        for (const name in deck) {
-            const cards = deck[name];
+        for (const [name, cards] of deck) {
             const cardElement = document.createElement('div');
             cardElement.className = 'deckCard';
 
