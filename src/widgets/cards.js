@@ -1,15 +1,14 @@
 class CardsWidget {
-    constructor({mtgService, menu, listContainer, searchField, onCardTap}){
+    constructor({mtgService, menu, onCardTap}){
         this.mtgService = mtgService;
         this.menu = menu;
-        this.listContainer = listContainer;
-        this.searchField = searchField;
+        this.listContainer = menu.querySelector('#listContainer');
+        this.searchField = menu.querySelector('#searchCards');
         this.onCardTap = onCardTap
 
         this.loader = document.createElement('div');
         this.loader.classList.add('loader');
 
-        this.cardsList = [];
         this.page = 1;
         this.pageSize = 100;
         this.loading = false;
@@ -32,7 +31,6 @@ class CardsWidget {
             if (currentValue === this.searchField.value && currentValue != this.searchQuery && !this.loading) {
                 this.searchQuery = currentValue;
                 this.page = 1;
-                this.cardsList = [];
                 this.hasReachedMax = false;
                 this.listContainer.innerHTML = '';
                 this.fetchPage();
@@ -44,7 +42,7 @@ class CardsWidget {
         const scrollTop = this.menu.scrollTop;
         const scrollHeight = this.menu.scrollHeight;
         const containerHeight = this.menu.clientHeight;
-        if (scrollTop + containerHeight >= scrollHeight && !this.loading) {
+        if (scrollTop + containerHeight >= scrollHeight - 10 && !this.loading) {
             this.page++;
             this.fetchPage();
         }
@@ -58,20 +56,22 @@ class CardsWidget {
         this.loading = true;
 
         const cards = await this.mtgService.loadCards(this.pageSize, this.page, this.searchQuery);
-        this.cardsList.push(...cards);
         this.hasReachedMax = cards.length < this.pageSize; 
-
-        const ul = document.createElement('ul');
-        this.cardsList.forEach(card => {
-            const li = document.createElement('li');
-            li.textContent = card.name;
-            li.addEventListener('click', () => {
-                this.onCardTap(card);
+        if (cards.length == 0){
+            this.listContainer.innerHTML = 'Nothing was found';
+        } else {
+            const ul = this.page == 1 ? document.createElement('ul') : this.listContainer.querySelector('ul');
+            cards.forEach(card => {
+                const li = document.createElement('li');
+                li.textContent = card.name;
+                li.addEventListener('click', () => {
+                    this.onCardTap(card);
+                });
+                ul.appendChild(li);
             });
-            ul.appendChild(li);
-        });
-        this.listContainer.innerHTML = '';
-        this.listContainer.appendChild(ul);
+            this.listContainer.removeChild(this.loader);
+            this.listContainer.appendChild(ul);
+        }
         this.loading = false;
     }
 }
