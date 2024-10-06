@@ -2,7 +2,7 @@ import {MtgService} from "./api/mtg";
 import {CardsWidget} from "./widgets/cards";
 import {ColorStatsWidget} from "./widgets/colorStats";
 import {ManaCostStatsWidget} from "./widgets/manaCostStats";
-import {CardDetailsWidget} from "./widgets/cradDetails";
+import {CardDetailsWidget} from "./widgets/cardDetails";
 import {DeckWidget} from "./widgets/deck";
 import {DeckController} from "./controllers/deck";
 

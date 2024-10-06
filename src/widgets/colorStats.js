@@ -18,6 +18,7 @@ class ColorStatsWidget {
             for (const card of cards){
                 if (!card.colorIdentity || card.colorIdentity.length == 0){
                     map['N']++;
+                    continue;
                 }
                 for (const color of card.colorIdentity){
                     map[color]++;
