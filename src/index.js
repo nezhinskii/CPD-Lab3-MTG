@@ -1,46 +1,28 @@
-import {MtgService} from "./api/mtg";
-import {CardsWidget} from "./widgets/cards";
-import {ColorStatsWidget} from "./widgets/colorStats";
-import {ManaCostStatsWidget} from "./widgets/manaCostStats";
-import {CardDetailsWidget} from "./widgets/cardDetails";
-import {DeckWidget} from "./widgets/deck";
-import {DeckController} from "./controllers/deck";
+import ReactDOM from 'react-dom/client'; 
+import CardsList from './components/cards_list/cardsList';
+import Deck from './components/deck';
+import Stats from './components/stats/stats';
+import { SelectedCardProvider } from './providers/selectedCardProvider';
+import CardDetails from './components/cardDetails';
+import { DeckProvider } from './providers/deckProvider';
 
-document.addEventListener("DOMContentLoaded", setup)
-
-function setup() {
-    const deck = new DeckController(() => {
-        deckWidget.build(deck);
-        manaCostStatsWidget.build(deck);
-        colorStatsWidget.build(deck);
-    });
-
-    const mtgService = new MtgService();
-
-    const colorStatsWidget = new ColorStatsWidget(document.getElementById("colorStats"));
-    const manaCostStatsWidget = new ManaCostStatsWidget(document.getElementById("manaStats"));
-    const deckWidget = new DeckWidget({
-        element: document.getElementById('deckContainer'),
-        removeCallback: (name) => {
-            deck.removeCard(name);
-        }
-    });
-    const cardDetailsWidget = new CardDetailsWidget({
-        element: document.getElementById('cardDetails'),
-        addCard: (card) => {
-            try{
-                deck.addCard(card);
-            } catch (error){
-                alert(error);
-            }
-        }
-    });
-    const cardsWidget = new CardsWidget({
-        mtgService: mtgService, 
-        menu: document.getElementById('menu'), 
-        onCardTap: (card) => {
-            cardDetailsWidget.build(card);
-        }
-    });
-    cardsWidget.init();
-}
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+    <div>
+        <header>
+            <h1>MTG Deck Builder</h1>
+        </header>
+        <SelectedCardProvider>
+            <DeckProvider>
+                <main className="main">
+                    <CardsList />
+                    <div className="content">
+                        <Deck />
+                        <CardDetails/>
+                    </div>
+                    <Stats />
+                </main>
+            </DeckProvider>
+        </SelectedCardProvider>
+    </div>
+);
